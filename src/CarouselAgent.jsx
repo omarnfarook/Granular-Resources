@@ -2,6 +2,26 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+const DEMO_MODE = !import.meta.env.VITE_ANTHROPIC_API_KEY;
+
+const DEMO_CAROUSEL = {
+  postCaption: "The future of design isn't about more tools \u2014 it's about better thinking. Here are 6 principles that separate good designers from great ones. Save this for your next project. \ud83d\udccc\n\n#DesignThinking #UXDesign #ProductDesign #CreativeStrategy #DesignTips #UIDesign",
+  slides: [
+    { headline: "Design Is Thinking Made Visual", body: "Great design doesn't start in Figma. It starts with a deep understanding of the problem you're solving and the humans you're solving it for.", caption: "Every masterpiece starts with a question, not a canvas.", imageQuery: "minimal workspace design", imageUrl: "" },
+    { headline: "Constraints Breed Creativity", body: "The best designs emerge from limitations. When you can't throw money or features at a problem, you're forced to find elegant solutions.", caption: "Stop fighting constraints. Start embracing them.", imageQuery: "creative minimalism", imageUrl: "" },
+    { headline: "Simplicity Is The Ultimate Sophistication", body: "If your design needs a tutorial, it's not done yet. The goal isn't minimal aesthetics \u2014 it's minimal cognitive load.", caption: "The best interface is the one you don't notice.", imageQuery: "clean simple interface", imageUrl: "" },
+    { headline: "Design For The Edge Cases", body: "Anyone can design for the happy path. What separates professionals is how they handle errors, empty states, and the unexpected.", caption: "The devil is in the details \u2014 and so is delight.", imageQuery: "abstract detail patterns", imageUrl: "" },
+    { headline: "Steal Like An Artist", body: "Originality is a myth. Every great designer has a swipe file. The key is combining inspiration from diverse sources into something uniquely yours.", caption: "Your influences are your superpower. Curate them wisely.", imageQuery: "artistic collage inspiration", imageUrl: "" },
+    { headline: "Ship It, Then Polish", body: "A shipped imperfect design teaches you more than a perfect mockup gathering dust. Real users will show you what matters \u2014 trust the process.", caption: "Done is better than perfect. But never stop iterating.", imageQuery: "rocket launch minimal", imageUrl: "" },
+  ],
+};
+
+const DEMO_REFINE_RESPONSES = [
+  "I've made the headline punchier and tightened up the body copy. The new version hits harder while keeping the core message intact.",
+  "Updated! I've refined the tone to be more conversational and added a stronger hook. This should resonate better with your audience.",
+  "Done \u2014 I've sharpened the language and made it more actionable. Readers will feel compelled to engage.",
+];
+
 async function callClaude(messages, system) {
   const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -26,6 +46,10 @@ async function callClaude(messages, system) {
 }
 
 async function generateCarouselJSON(topic, dump, imageStyle) {
+  if (DEMO_MODE) {
+    await sleep(1500);
+    return DEMO_CAROUSEL;
+  }
   const system = `You are a social media expert. Generate carousel slide content as JSON only. No markdown. No explanation.
 Return an array of 5-7 slides. Each slide: { "headline": "short punchy headline", "body": "2-3 sentence insight", "caption": "engaging caption for this slide", "imageQuery": "unsplash search query for the image", "imageUrl": "" }
 Also return a "postCaption" field at root level with an engaging Instagram/LinkedIn caption for the whole post including hashtags.
@@ -43,6 +67,15 @@ Format: { "postCaption": "...", "slides": [...] }`;
 }
 
 async function refineSlide(slide, instruction) {
+  if (DEMO_MODE) {
+    await sleep(1000);
+    const words = instruction.toLowerCase().split(" ");
+    return {
+      ...slide,
+      headline: words.includes("shorter") ? slide.headline.split(" ").slice(0, 4).join(" ") : slide.headline + " \u2728",
+      body: words.includes("simpler") ? slide.body.split(".")[0] + "." : slide.body,
+    };
+  }
   const system = `You are a social media expert. Refine this carousel slide based on user instruction. Return JSON only with same structure: { "headline": "...", "body": "...", "caption": "...", "imageQuery": "...", "imageUrl": "${slide.imageUrl}" }`;
   const prompt = `Current slide: ${JSON.stringify(slide)}\nInstruction: ${instruction}`;
   const text = await callClaude(
@@ -60,6 +93,10 @@ async function refineSlide(slide, instruction) {
 }
 
 async function agentChat(history, userMsg, carouselContext) {
+  if (DEMO_MODE) {
+    await sleep(800);
+    return DEMO_REFINE_RESPONSES[history.length % DEMO_REFINE_RESPONSES.length];
+  }
   const system = `You are a warm, ethereal creative agent called Muse. You help creators build stunning carousel posts. Be concise, insightful, and inspiring. ${carouselContext ? `Current carousel context: ${carouselContext}` : ""}`;
   return await callClaude(
     [...history, { role: "user", content: userMsg }],
