@@ -26,6 +26,7 @@ import { StatusBadge } from "./components/StatusBadge";
 import { CopyButton } from "./components/CopyButton";
 import { DocPanel } from "./components/DocPanel";
 import { ComponentCard } from "./components/ComponentCard";
+import { FormLayoutPattern } from "./patterns/FormLayout";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -653,8 +654,14 @@ interface ContentProps {
   docsOpenId: string | null;
 }
 
+// Map of built pattern components
+const patternComponents: Partial<Record<Page, React.ReactNode>> = {
+  "form-layout": <FormLayoutPattern />,
+};
+
 function ContentArea({ page, onToggleDocs, docsOpenId }: ContentProps & { page: Page }) {
   if (isPatternPage(page)) {
+    const builtPattern = patternComponents[page];
     return (
       <div style={{
         display: "flex",
@@ -664,7 +671,7 @@ function ContentArea({ page, onToggleDocs, docsOpenId }: ContentProps & { page: 
         minHeight: 0,
         overflow: "auto",
       }}>
-        <PatternPlaceholder page={page} />
+        {builtPattern ?? <PatternPlaceholder page={page} />}
       </div>
     );
   }
