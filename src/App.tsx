@@ -161,39 +161,57 @@ const allIcons: IconEntry[] = [
 
 function ColorsPage({ onToggleDocs, docsOpenId }: ContentProps) {
   const assets = getAssetsByGroup("colors");
-  const colorSwatches: Record<string, { label: string; var: string; value: string }[]> = {
+  const colorSwatches: Record<string, { label: string; value: string }[]> = {
     "color-primary": [
-      { label: "100", var: "--primary-100", value: "var(--primary-100)" },
-      { label: "200", var: "--primary-200", value: "var(--primary-200)" },
-      { label: "300", var: "--primary-300", value: "var(--primary-300)" },
-      { label: "400", var: "--primary-400", value: "var(--primary-400)" },
-      { label: "500", var: "--primary-500", value: "var(--primary-500)" },
+      { label: "50", value: "var(--indigo-50)" },
+      { label: "200", value: "var(--indigo-200)" },
+      { label: "300", value: "var(--indigo-300)" },
+      { label: "400", value: "var(--indigo-400)" },
+      { label: "500", value: "var(--indigo-500)" },
+      { label: "600", value: "var(--indigo-600)" },
+      { label: "800", value: "var(--indigo-800)" },
+      { label: "900", value: "var(--indigo-900)" },
+    ],
+    "color-secondary": [
+      { label: "50", value: "var(--lime-50)" },
+      { label: "200", value: "var(--lime-200)" },
+      { label: "300", value: "var(--lime-300)" },
+      { label: "400", value: "var(--lime-400)" },
+      { label: "500", value: "var(--lime-500)" },
+      { label: "600", value: "var(--lime-600)" },
+      { label: "800", value: "var(--lime-800)" },
+      { label: "900", value: "var(--lime-900)" },
     ],
     "color-neutral": [
-      { label: "100", var: "--neutral-100", value: "var(--neutral-100)" },
-      { label: "300", var: "--neutral-300", value: "var(--neutral-300)" },
-      { label: "500", var: "--neutral-500", value: "var(--neutral-500)" },
-      { label: "700", var: "--neutral-700", value: "var(--neutral-700)" },
-      { label: "900", var: "--neutral-900", value: "var(--neutral-900)" },
+      { label: "Primary", value: "#161819" },
+      { label: "Secondary", value: "#252627" },
+      { label: "Tertiary", value: "#111112" },
+      { label: "Border", value: "#323232" },
     ],
-    "color-success": [
-      { label: "400", var: "--success-400", value: "var(--success-400)" },
-      { label: "500", var: "--success-500", value: "var(--success-500)" },
+    "color-extended": [
+      { label: "NG-50", value: "var(--neutral-50)" },
+      { label: "NG-300", value: "var(--neutral-300)" },
+      { label: "NG-500", value: "var(--neutral-500)" },
+      { label: "CG-50", value: "var(--coolgrey-50)" },
+      { label: "CG-300", value: "var(--coolgrey-300)" },
+      { label: "CG-500", value: "var(--coolgrey-500)" },
     ],
-    "color-warning": [
-      { label: "400", var: "--warning-400", value: "var(--warning-400)" },
-      { label: "500", var: "--warning-500", value: "var(--warning-500)" },
-    ],
-    "color-error": [
-      { label: "400", var: "--error-400", value: "var(--error-400)" },
-      { label: "500", var: "--error-500", value: "var(--error-500)" },
-    ],
-    "color-semantic-bg": [
-      { label: "bg", var: "--color-bg", value: "var(--color-bg)" },
-      { label: "raised", var: "--color-bg-raised", value: "var(--color-bg-raised)" },
-      { label: "surface", var: "--color-surface", value: "var(--color-surface)" },
+    "color-semantic": [
+      { label: "Success", value: "var(--green-400)" },
+      { label: "Warning", value: "var(--orange-300)" },
+      { label: "Error", value: "var(--coral-400)" },
+      { label: "Info", value: "var(--teal-400)" },
     ],
   };
+
+  // Gradient preview for the gradients card
+  const gradientPreview = (
+    <div style={{ display: "flex", gap: 6 }}>
+      <div style={{ width: 56, height: 40, borderRadius: 6, background: "linear-gradient(90deg, var(--indigo-800), var(--indigo-500), var(--teal-600), var(--lime-500))" }} />
+      <div style={{ width: 56, height: 40, borderRadius: 6, background: "linear-gradient(135deg, rgba(98,69,242,0.05) 50%, rgba(98,69,242,0.20) 100%)", border: "1px solid var(--color-border)" }} />
+      <div style={{ width: 56, height: 40, borderRadius: 6, background: "linear-gradient(135deg, rgba(255,131,120,0.10) 50%, rgba(255,131,120,0.30) 100%)", border: "1px solid var(--color-border)" }} />
+    </div>
+  );
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16, padding: 20 }}>
@@ -204,22 +222,24 @@ function ColorsPage({ onToggleDocs, docsOpenId }: ContentProps) {
           docsOpen={docsOpenId === asset.id}
           onToggleDocs={onToggleDocs}
           preview={
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              {(colorSwatches[asset.id] ?? []).map((s) => (
-                <div key={s.label} style={{ textAlign: "center" }}>
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 6,
-                      background: s.value,
-                      border: "1px solid var(--color-border)",
-                    }}
-                  />
-                  <div style={{ fontSize: 10, color: "var(--color-text-muted)", marginTop: 2 }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
+            asset.id === "color-gradients" ? gradientPreview : (
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {(colorSwatches[asset.id] ?? []).map((s) => (
+                  <div key={s.label} style={{ textAlign: "center" }}>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 6,
+                        background: s.value,
+                        border: "1px solid var(--color-border)",
+                      }}
+                    />
+                    <div style={{ fontSize: 10, color: "var(--color-text-muted)", marginTop: 2 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            )
           }
         />
       ))}
