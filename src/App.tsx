@@ -660,9 +660,9 @@ function ContentArea({ page, onToggleDocs, docsOpenId }: ContentProps & { page: 
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        flex: 1,
+        flex: "1 1 0%",
+        minHeight: 0,
         overflow: "auto",
-        padding: 20,
       }}>
         <PatternPlaceholder page={page} />
       </div>
@@ -679,7 +679,7 @@ function ContentArea({ page, onToggleDocs, docsOpenId }: ContentProps & { page: 
   };
 
   return (
-    <div style={{ flex: 1, overflow: "auto" }}>
+    <div style={{ flex: "1 1 0%", minHeight: 0, overflow: "auto" }}>
       {pages[page]}
     </div>
   );
@@ -918,12 +918,13 @@ export default function App() {
       </div>
 
       {/* ── RIGHT COLUMN ── */}
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, overflow: "hidden" }}>
-        {/* Top Bar */}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, overflow: "hidden", height: "100%" }}>
+        {/* Top Bar — always full width, never constrained */}
         <div
           style={{
             width: "100%",
             height: "var(--ds-topbar-height)",
+            minHeight: "var(--ds-topbar-height)",
             flexShrink: 0,
             background: "var(--ds-topbar-bg)",
             borderBottom: "1px solid var(--ds-topbar-border)",
@@ -931,6 +932,7 @@ export default function App() {
             alignItems: "center",
             padding: "0 16px",
             gap: 8,
+            boxSizing: "border-box",
           }}
         >
           <span style={{ fontWeight: 600, fontSize: "var(--text-sm)", color: "var(--color-text)", whiteSpace: "nowrap" }}>
