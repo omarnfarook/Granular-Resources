@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Design Scaffold</title>
+  <style>
+    /* ============================================================
+       TOKENS — shared by shell and content. Reuse before adding.
+       ============================================================ */
+    :root,
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --text: #111114;
+      --border: #e6e6ea;
+      --muted: #6b7280;
+    }
+    [data-theme="dark"] {
+      --bg: #0b0b0d;
+      --text: #ededf0;
+      --border: #26262a;
+      --muted: #8a8a90;
+    }
+
+    /* ============================================================
+       SHELL — all classes prefixed shell-*. Off-limits to content.
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      display: flex;
+      overflow: hidden;
+    }
+
+    .shell-sidebar {
+      flex: 0 0 240px;
+      width: 240px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 10px;
+      background: var(--bg);
+      z-index: 2;
+    }
+    .shell-sidebar-title {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 4px 4px 6px;
+    }
+    .shell-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+    .shell-nav-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .shell-nav-link:hover {
+      background: color-mix(in srgb, var(--text) 6%, transparent);
+    }
+    .shell-nav-link.is-active {
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+      border-color: var(--border);
+    }
+    .shell-theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .shell-theme-toggle:hover {
+      background: color-mix(in srgb, var(--text) 6%, transparent);
+    }
+    .shell-theme-toggle-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .shell-content {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+    }
+    .shell-canvas {
+      position: absolute;
+      inset: 0;
+      overflow: auto;
+      display: flex;
+      padding: 40px;
+    }
+    .shell-canvas > .shell-stage {
+      margin: auto; /* centers when smaller than canvas; allows scroll when larger */
+    }
+    .shell-stage {
+      flex: 0 0 auto;
+    }
+
+    /* The page itself — content area. No opinionated styles past this point. */
+    .shell-page {
+      display: none;
+      transform-origin: top left;
+    }
+    .shell-page.is-active {
+      display: block;
+    }
+
+    /* Zoom widget — fixed bottom-right. */
+    .shell-zoom {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      z-index: 10;
+      font: inherit;
+      font-size: 12px;
+      user-select: none;
+    }
+    .shell-zoom-btn {
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      border-radius: 5px;
+      font: inherit;
+      font-size: 15px;
+      line-height: 1;
+    }
+    .shell-zoom-btn:hover {
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+    }
+    .shell-zoom-value {
+      min-width: 50px;
+      height: 26px;
+      padding: 0 6px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 5px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font: inherit;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .shell-zoom-value:hover {
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+    }
+  </style>
+</head>
+<body>
+  <aside class="shell-sidebar">
+    <div class="shell-sidebar-title">Pages</div>
+    <nav class="shell-nav" id="shellNav">
+      <button class="shell-nav-link is-active" data-page="1">Page 1</button>
+    </nav>
+    <button class="shell-theme-toggle" id="shellThemeToggle" type="button">
+      <span>Theme</span>
+      <span class="shell-theme-toggle-label" id="shellThemeLabel">Dark</span>
+    </button>
+  </aside>
+
+  <main class="shell-content">
+    <div class="shell-canvas" id="shellCanvas">
+      <div class="shell-stage" id="shellStage">
+        <section class="shell-page is-active" id="page-1"></section>
+      </div>
+    </div>
+  </main>
+
+  <div class="shell-zoom" role="group" aria-label="Zoom">
+    <button class="shell-zoom-btn" id="shellZoomOut" type="button" aria-label="Zoom out">−</button>
+    <button class="shell-zoom-value" id="shellZoomValue" type="button" aria-label="Reset zoom">100%</button>
+    <button class="shell-zoom-btn" id="shellZoomIn" type="button" aria-label="Zoom in">+</button>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const ZOOM_MIN = 25;
+      const ZOOM_MAX = 200;
+      const ZOOM_STEP = 10;
+      const ZOOM_DEFAULT = 100;
+      const THEME_KEY = 'shell:theme';
+      const ZOOM_KEY = (id) => 'shell:zoom:' + id;
+
+      const root = document.documentElement;
+      const themeBtn = document.getElementById('shellThemeToggle');
+      const themeLabel = document.getElementById('shellThemeLabel');
+      const nav = document.getElementById('shellNav');
+      const stage = document.getElementById('shellStage');
+      const zoomOutBtn = document.getElementById('shellZoomOut');
+      const zoomInBtn = document.getElementById('shellZoomIn');
+      const zoomValueBtn = document.getElementById('shellZoomValue');
+
+      /* -------------------- Theme -------------------- */
+      function setTheme(t) {
+        root.setAttribute('data-theme', t);
+        themeLabel.textContent = t === 'dark' ? 'Dark' : 'Light';
+      }
+      setTheme(localStorage.getItem(THEME_KEY) || 'dark');
+      themeBtn.addEventListener('click', () => {
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        setTheme(next);
+        localStorage.setItem(THEME_KEY, next);
+      });
+
+      /* -------------------- Pages -------------------- */
+      let activeId = '1';
+      const pages = () => Array.from(document.querySelectorAll('.shell-page'));
+
+      function activatePage(id) {
+        activeId = String(id);
+        pages().forEach(p => p.classList.toggle('is-active', p.id === 'page-' + activeId));
+        nav.querySelectorAll('.shell-nav-link').forEach(b =>
+          b.classList.toggle('is-active', b.dataset.page === activeId)
+        );
+        applyZoom();
+      }
+      nav.addEventListener('click', e => {
+        const btn = e.target.closest('.shell-nav-link');
+        if (btn && btn.dataset.page) activatePage(btn.dataset.page);
+      });
+
+      /* -------------------- Zoom (per page) -------------------- */
+      function clamp(v) {
+        return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, v));
+      }
+      function getZoom(id) {
+        const v = parseInt(localStorage.getItem(ZOOM_KEY(id)), 10);
+        return Number.isFinite(v) ? clamp(v) : ZOOM_DEFAULT;
+      }
+      function setZoom(v) {
+        const z = clamp(v);
+        localStorage.setItem(ZOOM_KEY(activeId), String(z));
+        applyZoom();
+      }
+      function applyZoom() {
+        const page = document.getElementById('page-' + activeId);
+        if (!page) return;
+        const z = getZoom(activeId) / 100;
+        // offsetWidth/Height are unaffected by transform — safe to read directly.
+        const w = page.offsetWidth;
+        const h = page.offsetHeight;
+        page.style.transform = 'scale(' + z + ')';
+        stage.style.width = (w * z) + 'px';
+        stage.style.height = (h * z) + 'px';
+        zoomValueBtn.textContent = Math.round(z * 100) + '%';
+      }
+
+      zoomOutBtn.addEventListener('click', () => setZoom(getZoom(activeId) - ZOOM_STEP));
+      zoomInBtn.addEventListener('click', () => setZoom(getZoom(activeId) + ZOOM_STEP));
+      zoomValueBtn.addEventListener('click', () => setZoom(ZOOM_DEFAULT));
+
+      window.addEventListener('keydown', e => {
+        if (!(e.metaKey || e.ctrlKey)) return;
+        if (e.key === '=' || e.key === '+') {
+          e.preventDefault();
+          setZoom(getZoom(activeId) + ZOOM_STEP);
+        } else if (e.key === '-' || e.key === '_') {
+          e.preventDefault();
+          setZoom(getZoom(activeId) - ZOOM_STEP);
+        } else if (e.key === '0') {
+          e.preventDefault();
+          setZoom(ZOOM_DEFAULT);
+        }
+      });
+
+      /* Re-apply zoom when active page's content changes size. */
+      const ro = new ResizeObserver(() => {
+        const active = document.getElementById('page-' + activeId);
+        if (active && active.classList.contains('is-active')) applyZoom();
+      });
+      pages().forEach(p => ro.observe(p));
+
+      activatePage(activeId);
+    })();
+  </script>
+</body>
+</html>
